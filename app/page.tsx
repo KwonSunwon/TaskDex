@@ -1,7 +1,7 @@
 // src/app/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 
 // 타입 정의
 type Folder = {
@@ -21,7 +21,129 @@ type Todo = {
 
 type MobileView = 'folders' | 'items' | 'detail';
 
+
 export default function Home() {
+
+  // ===== 데스크톱(>= md) 3단 리사이즈 상태 =====
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  const readStoredNumber = useCallback((key: string, fallback: number) => {
+    if (typeof window === 'undefined') return fallback;
+    const raw = window.localStorage.getItem(key);
+    const n = raw ? Number(raw) : NaN;
+    return Number.isFinite(n) ? n : fallback;
+  }, []);
+
+  const clamp = useCallback((v: number, min: number, max: number) => {
+    return Math.max(min, Math.min(max, v));
+  }, []);
+
+  // 폭(px)
+  const [leftWidth, setLeftWidth] = useState<number>(280);
+  const [midWidth, setMidWidth] = useState<number>(360);
+
+  // 드래그 상태
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const draggingRef = useRef<null | 'left-mid' | 'mid-right'>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)'); // Tailwind md
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+
+    // 초기 로드: localStorage -> state
+    setLeftWidth(readStoredNumber('todoapp-leftWidth', 280));
+    setMidWidth(readStoredNumber('todoapp-midWidth', 360));
+
+    const onChange = () => apply();
+    // Safari 호환
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else mq.addListener(onChange);
+
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', onChange);
+      else mq.removeListener(onChange);
+    };
+  }, [readStoredNumber]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('todoapp-leftWidth', String(leftWidth));
+  }, [leftWidth]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('todoapp-midWidth', String(midWidth));
+  }, [midWidth]);
+
+  const startDrag = useCallback((kind: 'left-mid' | 'mid-right') => {
+    draggingRef.current = kind;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  const endDrag = useCallback(() => {
+    draggingRef.current = null;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }, []);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!draggingRef.current) return;
+      const el = containerRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left; // container 기준 x
+
+      // 최소/최대 (px)
+      const LEFT_MIN = 200;
+      const LEFT_MAX = 520;
+      const MID_MIN = 260;
+      const MID_MAX = 720;
+
+      if (draggingRef.current === 'left-mid') {
+        setLeftWidth(clamp(x, LEFT_MIN, LEFT_MAX));
+      } else if (draggingRef.current === 'mid-right') {
+        // midWidth는 leftWidth + 핸들(대략 8px) 이후부터의 폭
+        const next = x - leftWidth - 8;
+        setMidWidth(clamp(next, MID_MIN, MID_MAX));
+      }
+    };
+
+    const onUp = () => {
+      if (!draggingRef.current) return;
+      endDrag();
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [clamp, endDrag, leftWidth]);
+
+  const onSeparatorKeyDown = useCallback((kind: 'left-mid' | 'mid-right', e: KeyboardEvent<HTMLDivElement>) => {
+    const step = e.shiftKey ? 30 : 10;
+
+    // 최소/최대 (px)
+    const LEFT_MIN = 200;
+    const LEFT_MAX = 520;
+    const MID_MIN = 260;
+    const MID_MAX = 720;
+
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (kind === 'left-mid') setLeftWidth(w => clamp(w - step, LEFT_MIN, LEFT_MAX));
+      else setMidWidth(w => clamp(w - step, MID_MIN, MID_MAX));
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (kind === 'left-mid') setLeftWidth(w => clamp(w + step, LEFT_MIN, LEFT_MAX));
+      else setMidWidth(w => clamp(w + step, MID_MIN, MID_MAX));
+    }
+  }, [clamp]);
   
   // 폴더 목록
   const [folders] = useState<Folder[]>([
@@ -106,12 +228,12 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex overflow-hidden">
+    <div ref={containerRef} className="h-screen bg-gray-100 flex overflow-hidden">
       
       {/* ========== 데스크톱: 3단 레이아웃 ========== */}
       {/* 왼쪽: 폴더 목록 */}
-      <div className={`
-        w-full md:w-64 bg-white border-r flex-shrink-0
+      <div style={isDesktop ? { width: `${leftWidth}px` } : undefined} className={`
+        w-full md:w-auto bg-white border-r flex-shrink-0
         ${mobileView !== 'folders' ? 'hidden md:block' : 'block'}
       `}>
         <div className="p-4 border-b bg-blue-600 text-white">
@@ -141,9 +263,22 @@ export default function Home() {
         </div>
       </div>
 
+      {/* 데스크톱 리사이즈 핸들: 폴더 <-> 항목 */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize left panel"
+        tabIndex={0}
+        onMouseDown={(e) => { e.preventDefault(); startDrag('left-mid'); }}
+        onKeyDown={(e) => onSeparatorKeyDown('left-mid', e)}
+        className="hidden md:block w-2 shrink-0 cursor-col-resize group focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <div className="h-full w-px mx-auto bg-gray-200 group-hover:bg-gray-300" />
+      </div>
+
       {/* 가운데: 항목 목록 */}
-      <div className={`
-        w-full md:w-80 bg-white border-r flex flex-col
+      <div style={isDesktop ? { width: `${midWidth}px` } : undefined} className={`
+        w-full md:w-auto bg-white border-r flex flex-col
         ${mobileView !== 'items' ? 'hidden md:flex' : 'flex'}
       `}>
         {/* 모바일 헤더 (뒤로가기 버튼) */}
@@ -225,6 +360,19 @@ export default function Home() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* 데스크톱 리사이즈 핸들: 항목 <-> 상세 */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize middle panel"
+        tabIndex={0}
+        onMouseDown={(e) => { e.preventDefault(); startDrag('mid-right'); }}
+        onKeyDown={(e) => onSeparatorKeyDown('mid-right', e)}
+        className="hidden md:block w-2 shrink-0 cursor-col-resize group focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <div className="h-full w-px mx-auto bg-gray-200 group-hover:bg-gray-300" />
       </div>
 
       {/* 오른쪽: 상세 내용 */}
