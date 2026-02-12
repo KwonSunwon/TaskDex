@@ -126,9 +126,9 @@ export default function Home() {
                 <button
                   onClick={() => selectFolder(folder.id)}
                   className={`
-                    w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 transition
+                    w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
                     ${selectedFolderId === folder.id 
-                      ? 'bg-blue-100 text-blue-700 font-medium' 
+                      ? 'bg-blue-100 text-blue-700 font-medium hover:bg-blue-200' 
                       : 'hover:bg-gray-100 text-gray-700'}
                   `}
                 >
@@ -148,7 +148,7 @@ export default function Home() {
       `}>
         {/* 모바일 헤더 (뒤로가기 버튼) */}
         <div className="p-4 border-b flex items-center gap-3 md:hidden">
-          <button onClick={goBack} className="text-gray-600">
+          <button onClick={goBack} className="text-gray-600 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500">
             ← 
           </button>
           <h2 className="font-bold text-lg">
@@ -172,7 +172,7 @@ export default function Home() {
                 <button
                   onClick={() => selectTodo(todo.id)}
                   className={`
-                    w-full text-left px-4 py-3 border-b hover:bg-gray-50 transition
+                    w-full text-left px-4 py-3 border-b hover:bg-gray-50 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
                     ${selectedTodoId === todo.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}
                   `}
                 >
@@ -236,7 +236,7 @@ export default function Home() {
           <>
             {/* 모바일 헤더 */}
             <div className="p-4 border-b flex items-center gap-3 md:hidden">
-              <button onClick={goBack} className="text-gray-600">
+              <button onClick={goBack} className="text-gray-600 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500">
                 ←
               </button>
               <h2 className="font-bold text-lg">상세</h2>
