@@ -1,36 +1,160 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 Todo & Memo App
 
-## Getting Started
+Next.js + TypeScript + Tailwind CSS로 구현한 할 일 및 메모 관리 웹 애플리케이션
 
-First, run the development server:
+## 🎯 프로젝트 개요
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+개인 생산성 향상을 위한 통합 Todo & Memo 관리 앱입니다.
+깔끔한 3단 레이아웃과 모바일 반응형 디자인으로 언제 어디서나 편리하게 사용할 수 있습니다.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ 현재 구현된 기능
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 핵심 기능
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- ✅ **3단 레이아웃**: 폴더 목록 - 항목 목록 - 상세 내용
+- ✅ **폴더 관리**: 개인, 업무, 쇼핑목록 등 폴더별 분류
+- ✅ **할 일 관리**: 체크박스, 제목, 상세 내용, 날짜 지원
+- ✅ **메모 기능**: 날짜 없는 자유 메모 작성
+- ✅ **전체 보기**: 모든 폴더의 항목을 한 번에 확인
 
-## Learn More
+### UX 기능
 
-To learn more about Next.js, take a look at the following resources:
+- ✅ **리사이즈**: 마우스 드래그로 패널 크기 조절
+- ✅ **localStorage**: 패널 크기 자동 저장
+- ✅ **반응형 디자인**: 데스크톱/모바일 최적화
+- ✅ **키보드 지원**: 화살표 키로 패널 크기 조절
+- ✅ **접근성**: ARIA 속성, focus-visible 지원
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ 기술 스택
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Hooks (useState, useEffect, useCallback, useMemo)
 
-## Deploy on Vercel
+## 📋 향후 개발 계획
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Phase 1: MVP 핵심 기능 (1-2주)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### 1. 메모와 할 일 통합 관리
+
+- [ ] Todo 타입 구분 (체크박스 있는 할 일 / 일반 메모)
+- [ ] 할 일 ↔ 메모 타입 전환 기능
+- [ ] 메모에도 날짜 추가 가능
+- [ ] 마크다운 지원 (굵게, 리스트 등)
+
+#### 2. 우선순위 & 정렬
+
+- [ ] 우선순위 설정 (높음/중간/낮음)
+- [ ] 우선순위별 색상 구분
+- [ ] 정렬 옵션 (날짜순, 우선순위순, 제목순, 생성일순)
+- [ ] 드래그로 수동 순서 변경
+
+#### 3. 스마트 뷰 & 필터
+
+- [ ] 오늘 할 일
+- [ ] 이번 주 할 일
+- [ ] 마감 임박 (7일 이내)
+- [ ] 우선순위 높음만 보기
+- [ ] 완료되지 않은 항목만
+- [ ] 날짜 없는 항목 (Inbox)
+
+#### 4. 완료 항목 관리
+
+- [ ] 완료 항목 자동 숨김
+- [ ] 완료 항목 보기/숨기기 토글
+- [ ] 아카이브 (30일 후 자동 삭제 옵션)
+- [ ] 완료 항목 통계
+
+### Phase 2: 생산성 향상 (1개월)
+
+#### 5. 검색 기능
+
+- [ ] 상단 통합 검색창 (Command+K 또는 Ctrl+K)
+- [ ] 검색하면서 바로 새 항목 생성 가능
+- [ ] 검색 필터 (날짜, 폴더, 완료 여부, 태그)
+- [ ] 검색 히스토리
+
+#### 6. 하위 작업 (Sub-tasks)
+
+- [ ] 할 일 안에 체크리스트 추가
+- [ ] 진행률 표시 (3/5 완료)
+- [ ] 모든 하위 작업 완료 시 자동 완료
+
+#### 7. 폴더 & 태그 관리
+
+- [ ] 폴더 추가/삭제/이름 변경
+- [ ] 폴더 색상 지정
+- [ ] 여러 태그를 하나의 항목에 추가 (#중요, #긴급 등)
+- [ ] 태그 클릭 시 필터링
+- [ ] 스마트 폴더 (조건 기반 자동 필터링)
+
+#### 8. 반복 작업
+
+- [ ] 매일/매주/매월 반복 설정
+- [ ] 커스텀 반복 (매주 월/수/금)
+- [ ] 완료 시 자동으로 다음 날짜 생성
+
+#### 9. 빠른 입력 (Quick Add)
+
+- [ ] 전역 단축키 (Ctrl+Shift+A 등)
+- [ ] 자연어 입력 ("내일 오후 3시 회의 준비 #업무")
+- [ ] 플로팅 버튼
+
+#### 10. 사용자 경험 개선
+
+- [ ] 다크모드
+- [ ] 단축키 지원 (키보드만으로 조작)
+- [ ] 되돌리기/다시 실행 (Undo/Redo)
+- [ ] 드래그 앤 드롭으로 폴더 간 이동
+- [ ] 일괄 선택/삭제
+
+### Phase 3: 고급 기능 (2-3개월)
+
+#### 11. 캘린더 뷰
+
+- [ ] 월간 캘린더 뷰
+- [ ] 날짜별 할 일 표시
+- [ ] 드래그로 날짜 변경
+- [ ] 오늘, 이번 주, 다음 주 빠른 이동
+- [ ] 마감 임박 항목 강조
+
+#### 12. 알리미 기능
+
+- [ ] 특정 시간 알림 (오전 9시 등)
+- [ ] 브라우저 푸시 알림
+- [ ] 마감일 하루 전 자동 알림
+- [ ] 반복 알림 설정
+
+#### 13. 통계 & 진행률
+
+- [ ] 완료율 그래프 (주간/월간)
+- [ ] 폴더별 진행 상황
+- [ ] 연속 달성 일수 (Streak)
+- [ ] 생산성 인사이트
+
+#### 14. 데이터 관리
+
+- [ ] 데이터 백업 (JSON/CSV 내보내기)
+- [ ] 데이터 가져오기
+- [ ] Supabase/Firebase 동기화 (다중 기기)
+- [ ] 실시간 자동 저장
+
+#### 15. 협업 기능 (선택)
+
+- [ ] 항목 공유 링크
+- [ ] 댓글 기능
+- [ ] 담당자 지정
+- [ ] 실시간 협업
+
+## 🤝 기여하기
+
+이슈와 PR을 환영합니다!
+
+## 📄 라이센스
+
+MIT License
+
+---
+
+**Last Updated**: 2026-02-13
