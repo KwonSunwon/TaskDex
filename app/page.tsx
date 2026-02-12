@@ -1,7 +1,7 @@
 // src/app/page.tsx
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo, type KeyboardEvent } from 'react';
 
 // 타입 정의
 type Folder = {
@@ -165,6 +165,7 @@ export default function Home() {
 
   // 선택 상태
   const [selectedFolderId, setSelectedFolderId] = useState<number>(1);
+  const [lastRealFolderId, setLastRealFolderId] = useState<number>(1);
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(1);
   
   // 모바일 뷰 상태
@@ -175,9 +176,20 @@ export default function Home() {
   const [newDate, setNewDate] = useState('');
 
   // 선택된 폴더의 할 일 목록
-  const currentFolderTodos = todos.filter(todo => todo.folderId === selectedFolderId);
-  
-  // 선택된 할 일
+  const currentFolderTodos = selectedFolderId === 0
+    ? todos
+    : todos.filter(todo => todo.folderId === selectedFolderId);
+
+  const selectedFolderName = selectedFolderId === 0
+    ? '전체'
+    : (folders.find(f => f.id === selectedFolderId)?.name ?? '');
+
+  const folderNameById = useMemo(() => {
+    const map: Record<number, string> = {};
+    for (const f of folders) map[f.id] = f.name;
+    return map;
+  }, [folders]);
+// 선택된 할 일
   const selectedTodo = todos.find(todo => todo.id === selectedTodoId);
 
   // 할 일 토글
@@ -193,7 +205,7 @@ export default function Home() {
     
     const newTodo: Todo = {
       id: Date.now(),
-      folderId: selectedFolderId,
+      folderId: selectedFolderId === 0 ? lastRealFolderId : selectedFolderId,
       title: newTitle,
       isDone: false,
       ...(newDate && { date: newDate }),
@@ -208,6 +220,7 @@ export default function Home() {
   // 폴더 선택
   const selectFolder = (folderId: number) => {
     setSelectedFolderId(folderId);
+    if (folderId !== 0) setLastRealFolderId(folderId);
     setSelectedTodoId(null);
     setMobileView('items');
   };
@@ -243,6 +256,20 @@ export default function Home() {
         <div className="p-4">
           <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">폴더</h2>
           <ul className="space-y-1">
+            <li>
+              <button
+                onClick={() => selectFolder(0)}
+                className={`
+                    w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+                    ${selectedFolderId === 0
+                      ? 'bg-blue-100 text-blue-700 font-medium hover:bg-blue-200'
+                      : 'hover:bg-gray-100 text-gray-700'}
+                  `}
+              >
+                <span>📂</span>
+                <span>전체</span>
+              </button>
+            </li>
             {folders.map(folder => (
               <li key={folder.id}>
                 <button
@@ -287,14 +314,14 @@ export default function Home() {
             ← 
           </button>
           <h2 className="font-bold text-lg">
-            {folders.find(f => f.id === selectedFolderId)?.name}
+            {selectedFolderName}
           </h2>
         </div>
 
         {/* 데스크톱 헤더 */}
         <div className="hidden md:block p-4 border-b">
           <h2 className="font-bold text-lg">
-            {folders.find(f => f.id === selectedFolderId)?.name}
+            {selectedFolderName}
           </h2>
           <p className="text-sm text-gray-500">{currentFolderTodos.length}개 항목</p>
         </div>
@@ -321,6 +348,9 @@ export default function Home() {
                     <div className="flex-1 min-w-0">
                       <p className={`font-medium ${todo.isDone ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                         {todo.title}
+                        {selectedFolderId === 0 && (
+                          <span className="ml-2 text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">📁 {folderNameById[todo.folderId] ?? '미지정'}</span>
+                        )}
                       </p>
                       {todo.date && (
                         <p className="text-xs text-gray-500 mt-1">📅 {todo.date}</p>
@@ -407,6 +437,9 @@ export default function Home() {
                   <h1 className={`text-2xl font-bold ${selectedTodo.isDone ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                     {selectedTodo.title}
                   </h1>
+                  {selectedFolderId === 0 && (
+                    <p className="text-sm text-gray-500 mt-1"> 📁 {folderNameById[selectedTodo.folderId] ?? '미지정'}</p>
+                  )}
                 </div>
 
                 {/* 날짜 */}
