@@ -25,7 +25,7 @@ function getWeekRange() {
 }
 
 export default function Home() {
-  const { isDesktop, midWidth, containerRef, startDrag } = useResizable();
+  const { isDesktop, isLeftCollapsed, toggleLeft, midRatio, containerRef, startDrag } = useResizable();
 
   const [folders] = useState<Folder[]>([
     { id: 1, name: '개인', icon: '👤' },
@@ -190,7 +190,7 @@ export default function Home() {
   return (
     <div ref={containerRef} className="h-screen bg-gray-100 flex overflow-hidden">
 
-      {/* 폴더 목록 (고정 너비) */}
+      {/* 폴더 목록 */}
       <FolderList
         folders={folders}
         selectedFolderId={selectedFolderId}
@@ -198,6 +198,8 @@ export default function Home() {
         onSelectFolder={selectFolder}
         onSelectSmartView={selectSmartView}
         mobileView={mobileView}
+        isCollapsed={isDesktop ? isLeftCollapsed : false}
+        onToggle={toggleLeft}
       />
 
       {/* 할 일 목록 */}
@@ -216,7 +218,7 @@ export default function Home() {
         setNewDate={setNewDate}
         mobileView={mobileView}
         onGoBack={goBack}
-        width={isDesktop ? midWidth : undefined}
+        ratio={isDesktop ? midRatio : undefined}
       />
 
       {/* 리사이즈 핸들 */}
@@ -233,6 +235,7 @@ export default function Home() {
         onToggleTodo={toggleTodo}
         mobileView={mobileView}
         onGoBack={goBack}
+        ratio={isDesktop ? (1 - midRatio) : undefined}
       />
 
     </div>

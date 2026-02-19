@@ -18,7 +18,7 @@ type Props = {
   setNewDate: (value: string) => void;
   mobileView: string;
   onGoBack: () => void;
-  width?: number;
+  ratio?: number;
 };
 
 export default function TodoList({
@@ -36,13 +36,13 @@ export default function TodoList({
   setNewDate,
   mobileView,
   onGoBack,
-  width,
+  ratio,
 }: Props) {
   return (
-    <div 
-      style={width ? { width: `${width}px` } : undefined}
+    <div
+      style={ratio !== undefined ? { flex: ratio, minWidth: 0 } : undefined}
       className={`
-        w-full md:w-auto bg-white border-r flex flex-col
+        w-full bg-white border-r flex flex-col
         ${mobileView !== 'items' ? 'hidden md:flex' : 'flex'}
       `}
     >

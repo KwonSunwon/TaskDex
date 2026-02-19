@@ -8,6 +8,7 @@ type Props = {
   onToggleTodo: (id: number) => void;
   mobileView: string;
   onGoBack: () => void;
+  ratio?: number;
 };
 
 export default function TodoDetail({
@@ -15,12 +16,17 @@ export default function TodoDetail({
   onToggleTodo,
   mobileView,
   onGoBack,
+  ratio,
 }: Props) {
   return (
-    <div className={`
-      flex-1 bg-white flex flex-col
-      ${mobileView !== 'detail' ? 'hidden md:flex' : 'flex'}
-    `}>
+    <div
+      style={ratio !== undefined ? { flex: ratio, minWidth: 0 } : undefined}
+      className={`
+        bg-white flex flex-col
+        ${ratio === undefined ? 'flex-1' : ''}
+        ${mobileView !== 'detail' ? 'hidden md:flex' : 'flex'}
+      `}
+    >
       {todo ? (
         <>
           {/* 모바일 헤더 */}
